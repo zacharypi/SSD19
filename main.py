@@ -1,4 +1,4 @@
-# School Shooting Defender 2019, an educational game by Zachary Picone
+# Super Shooter Defender 2019, an educational game by Zachary Picone
 # Based on a PyGame example program by 'kidscancode', available on their GitHub
 # Sprites from Kenney.nl under the CC0 license
 # Copyright (C) 2019 Zachary Picone
