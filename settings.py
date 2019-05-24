@@ -33,9 +33,11 @@ PLAYER_HIT_RECT = pg.Rect(0, 0, 40, 40)
 
 # Fist settings
 FIST_IMG = 'fist_particles.png'
-FIST_SPEED = 200
+FIST_SPEED = 400
 FIST_LIFETIME = 100
 FIST_RATE = 500
+KNOCKBACK = 400
+FIST_ACCURACY = 5
 
 # Mob settings
 MOB_IMG = 'hitman1_gun.png'

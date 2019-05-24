@@ -1,4 +1,5 @@
 import pygame as pg
+from random import uniform
 from settings import *
 from tilemap import collide_hit_rect
 vec = pg.math.Vector2
@@ -55,6 +56,7 @@ class Player(pg.sprite.Sprite):
                 self.last_shot = now
                 dir = vec(1, 0).rotate(-self.rot)
                 Fist(self.game, self.pos, dir)
+                self.vel = vec(KNOCKBACK, 0).rotate(-self.rot)
 
     def update(self):
         self.get_keys()
@@ -107,8 +109,9 @@ class Fist(pg.sprite.Sprite):
         self.image = game.fist_img
         self.rect = self.image.get_rect()
         self.pos = vec(pos)
-        self.rect.center = pos
-        self.vel = dir * FIST_SPEED
+        self.rect.center = posy
+        spread = uniform(-FIST_ACCURACY, FIST_ACCURACY)
+        self.vel = dir.rotate(spread) * FIST_SPEED
         self.spawn_time = pg.time.get_ticks()
         self.rot = 0
 

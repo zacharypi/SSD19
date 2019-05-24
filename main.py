@@ -78,6 +78,10 @@ class Game:
         # update portion of the game loop
         self.all_sprites.update()
         self.camera.update(self.player)
+        # punches hit enemies
+        hits = pg.sprite.groupcollide(self.mobs, self.fists, False, False)
+        for hit in hits:
+            hit.kill() # implement health in the future
 
     def draw_grid(self): # Draws tile grid over the screen
         for x in range(0, WIDTH, TILESIZE):
