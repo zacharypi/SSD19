@@ -26,6 +26,7 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 WALL_IMG = 'tile_205.png'
 
 # Player settings
+PLAYER_HEALTH = 100
 PLAYER_SPEED = 250
 PLAYER_ROT_SPEED = 250
 PLAYER_IMG = 'manBrown_hold.png'
@@ -38,8 +39,12 @@ FIST_LIFETIME = 100
 FIST_RATE = 500
 KNOCKBACK = 400
 FIST_ACCURACY = 5
+FIST_DAMAGE = 10 # TODO: change damage to 40 and add invulnerability
 
 # Mob settings
 MOB_IMG = 'hitman1_gun.png'
 MOB_SPEED = 225
 MOB_HIT_RECT = pg.Rect(0, 0, 45, 45)
+MOB_HEALTH = 100
+MOB_DAMAGE = 40
+MOB_KNOCKBACK = 20
