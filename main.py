@@ -55,8 +55,11 @@ class Game:
 	def load_data(self):
 		game_folder = path.dirname(__file__)
 		img_folder = path.join(game_folder, 'assets')
-		self.map = Map(path.join(game_folder, 'map3.txt'))
+		map_folder = path.join(game_folder, 'tileset')
+		self.map = TiledMap(path.join(map_folder, 'lvl1.tmx'))
 		# Loading in all image assets used
+		self.map_img = self.map.make_map()
+		self.map_rect =	self.map_img.get_rect()
 		self.player_img = pg.image.load(path.join(img_folder, PLAYER_IMG)).convert_alpha()
 		self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG)).convert_alpha()
 		self.fist_img = pg.image.load(path.join(img_folder, FIST_IMG)).convert_alpha()
@@ -69,15 +72,16 @@ class Game:
 		self.walls = pg.sprite.Group()
 		self.mobs = pg.sprite.Group()
 		self.fists = pg.sprite.Group()
-		for row, tiles in enumerate(self.map.data):
-			for col, tile in enumerate(tiles):
-				if tile == '1':
-					Wall(self, col, row)
-				if tile == 'M':
-					Mob(self, col, row)
-				if tile == 'P':
-					self.player = Player(self, col, row)
-				self.camera = Camera(self.map.width, self.map.height)
+		#	for row, tiles in enumerate(self.map.data):
+		#		for col, tile in enumerate(tiles):
+		#			if tile == '1':
+		#				Wall(self, col, row)
+		#			if tile == 'M':
+		#				Mob(self, col, row)
+		#			if tile == 'P':
+		#				self.player = Player(self, col, row)
+		self.player = Player(self, 5, 5)
+		self.camera = Camera(self.map.width, self.map.height)
 
 	def run(self):
 		# game loop - set self.playing = False to end the game
@@ -109,10 +113,11 @@ class Game:
 		hits = pg.sprite.groupcollide(self.mobs, self.fists, False, False)
 		for hit in hits:
 			hit.health -= FIST_DAMAGE
-			hit.vel = vec(0, 0)
+			hit.vel = vec(100, 100) # I MADE THEM GO BACK
 
 			# this is utterly fucked
-			# a grave transgression has been made in the creation of this code fuck
+			# a grave transgression has been made in the
+			# creation of this code
 
 	def draw_grid(self): # Draws tile grid over the screen
 		for x in range(0, WIDTH, TILESIZE):
@@ -122,8 +127,9 @@ class Game:
 
 	def draw(self):
 		pg.display.set_caption("{:.2f}".format(self.clock.get_fps())) # shows fps in title bar for optimisation purposes
-		self.screen.fill(BGCOLOR)
+		# self.screen.fill(BGCOLOR)
 		# self.draw_grid() // draws grid over the gameplay area
+		self.screen.blit(self.map_img, self.camera.apply_rect(self.map_rect))
 		for sprite in self.all_sprites:
 			if isinstance(sprite, Mob):
 				sprite.draw_health()

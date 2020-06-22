@@ -37,7 +37,7 @@ FIST_IMG = 'fist_particles.png'
 FIST_SPEED = 400
 FIST_LIFETIME = 100
 FIST_RATE = 500
-KNOCKBACK = 400
+KNOCKBACK = 200
 FIST_ACCURACY = 5
 FIST_DAMAGE = 10 # TODO: change damage to 40 and add invulnerability
 
@@ -46,5 +46,5 @@ MOB_IMG = 'hitman1_gun.png'
 MOB_SPEED = 225
 MOB_HIT_RECT = pg.Rect(0, 0, 45, 45)
 MOB_HEALTH = 100
-MOB_DAMAGE = 40
-MOB_KNOCKBACK = 20
+MOB_DAMAGE = 25
+MOB_KNOCKBACK = 40
