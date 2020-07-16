@@ -1,5 +1,5 @@
 import pygame as pg
-from random import uniform
+from random import uniform, choice
 from settings import *
 from tilemap import collide_hit_rect
 vec = pg.math.Vector2
@@ -31,10 +31,11 @@ class Player(pg.sprite.Sprite):
 		self.game = game
 		self.image = game.player_img
 		self.rect = self.image.get_rect()
+		self.rect.center = (x, y)
 		self.hit_rect = PLAYER_HIT_RECT
 		self.hit_rect.center = self.rect.center
 		self.vel = vec(0, 0)
-		self.pos = vec(x, y) * TILESIZE
+		self.pos = vec(x, y)
 		self.rot = 0
 		self.last_shot = 0
 		self.health = PLAYER_HEALTH
@@ -79,21 +80,32 @@ class Mob(pg.sprite.Sprite):
 		self.game = game
 		self.image = game.mob_img
 		self.rect = self.image.get_rect()
+		self.rect.center = (x, y)
 		self.hit_rect = MOB_HIT_RECT.copy()
 		self.hit_rect.center = self.rect.center
-		self.pos = vec(x, y) * TILESIZE
+		self.pos = vec(x, y)
 		self.vel = vec(0, 0)
 		self.acc = vec(0, 0)
 		self.rect.center = self.pos
 		self.rot = 0
 		self.health = MOB_HEALTH
+		self.speed = choice(MOB_SPEEDS)
+
+	def avoid_mobs(self):
+		for mob in self.game.mobs:
+			if mob != self:
+				dist = self.pos - mob.pos
+				if 0 < dist.length() < AVOID_RADIUS:
+					self.acc += dist.normalize()
 
 	def update(self): # rotate towards player, need to change implementation in future for game balance
 		self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
 		self.image = pg.transform.rotate(self.game.mob_img, self.rot)
 		self.rect = self.image.get_rect()
 		self.rect.center = self.pos
-		self.acc = vec(MOB_SPEED, 0).rotate(-self.rot)
+		self.acc = vec(1, 0).rotate(-self.rot)
+		self.avoid_mobs()
+		self.acc.scale_to_length(self.speed)
 		self.acc += self.vel * -1
 		self.vel += self.acc * self.game.dt
 		self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
@@ -124,6 +136,7 @@ class Fist(pg.sprite.Sprite):
 		self.game = game
 		self.image = game.fist_img
 		self.rect = self.image.get_rect()
+		self.hit_rect = self.rect
 		self.pos = vec(pos)
 		self.rect.center = pos
 		spread = uniform(-FIST_ACCURACY, FIST_ACCURACY)
@@ -139,14 +152,25 @@ class Fist(pg.sprite.Sprite):
 		if pg.time.get_ticks() - self.spawn_time > FIST_LIFETIME:
 			self.kill()
 
-class Wall(pg.sprite.Sprite):
-	def __init__(self, game, x, y):
-		self.groups = game.all_sprites, game.walls
+#class Wall(pg.sprite.Sprite):
+#	def __init__(self, game, x, y):
+#		self.groups = game.all_sprites, game.walls
+#		pg.sprite.Sprite.__init__(self, self.groups)
+#		self.game = game
+#		self.image = game.wall_img
+#		self.rect = self.image.get_rect()
+#		self.x = x
+#		self.y = y
+#		self.rect.x = x * TILESIZE
+#		self.rect.y = y * TILESIZE
+
+class Obstacle(pg.sprite.Sprite):
+	def __init__(self, game, x, y, w, h):
+		self.groups = game.walls
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = game.wall_img
-		self.rect = self.image.get_rect()
+		self.rect = pg.Rect(x, y, w, h)
 		self.x = x
 		self.y = y
-		self.rect.x = x * TILESIZE
-		self.rect.y = y * TILESIZE
+		self.rect.x = x
+		self.rect.y = y

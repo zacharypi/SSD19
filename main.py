@@ -80,8 +80,15 @@ class Game:
 		#				Mob(self, col, row)
 		#			if tile == 'P':
 		#				self.player = Player(self, col, row)
-		self.player = Player(self, 5, 5)
+		for tile_object in self.map.tmxdata.objects:
+			if tile_object.name == 'player':
+				self.player = Player(self, tile_object.x, tile_object.y)
+			if tile_object.name == 'thug':
+				Mob(self, tile_object.x, tile_object.y)
+			if tile_object.name == 'wall':
+				Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
 		self.camera = Camera(self.map.width, self.map.height)
+		self.draw_debug = False
 
 	def run(self):
 		# game loop - set self.playing = False to end the game
@@ -134,6 +141,11 @@ class Game:
 			if isinstance(sprite, Mob):
 				sprite.draw_health()
 			self.screen.blit(sprite.image, self.camera.apply(sprite))
+			if self.draw_debug:
+				pg.draw.rect(self.screen, GREEN, self.camera.apply_rect(sprite.hit_rect), 1)
+		if self.draw_debug:
+			for wall in self.walls:
+				pg.draw.rect(self.screen, CYAN, self.camera.apply_rect(wall.rect), 1)
 		# pg.draw.rect(self.screen, WHITE, self.player.hit_rect, 2) // Shows hitbox of player
 		# HUD functions
 		draw_player_health(self.screen, 10, 10, self.player.health / PLAYER_HEALTH)
@@ -147,6 +159,8 @@ class Game:
 			if event.type == pg.KEYDOWN:
 				if event.key == pg.K_ESCAPE:
 					self.quit()
+				if event.key == pg.K_i:
+					self.draw_debug = not self.draw_debug
 
 	def show_start_screen(self):
 		pass

@@ -9,6 +9,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
+CYAN = (0, 255, 255)
 LBROWN = (210, 180, 140)
 BROWN = (139, 69, 19)
 
@@ -16,7 +17,7 @@ BROWN = (139, 69, 19)
 WIDTH = 1024   # frame size, required to be multiplicable by 32 and 64
 HEIGHT = 768  # frame size, required to be multiplicable by 32 and 64
 FPS = 60
-TITLE = "School Shooting Simulator 19" # name of game window
+TITLE = "fire" # name of game window
 BGCOLOR = LBROWN
 
 TILESIZE = 64
@@ -43,8 +44,9 @@ FIST_DAMAGE = 10 # TODO: change damage to 40 and add invulnerability
 
 # Mob settings
 MOB_IMG = 'hitman1_gun.png'
-MOB_SPEED = 225
+MOB_SPEEDS = [200, 220, 225, 225, 240, 250]
 MOB_HIT_RECT = pg.Rect(0, 0, 45, 45)
 MOB_HEALTH = 100
 MOB_DAMAGE = 25
-MOB_KNOCKBACK = 40
+MOB_KNOCKBACK = 50
+AVOID_RADIUS = 90
