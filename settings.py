@@ -26,6 +26,15 @@ GRIDHEIGHT = HEIGHT / TILESIZE
 
 WALL_IMG = 'tile_205.png'
 
+# Sounds
+BG_MUSIC = 'lets_go_and_replay.ogg'
+WEAPON_SOUNDS_PUNCH = ['hit-02.wav']
+ENEMY_HIT_SOUND = ['shoot-02.wav']
+DEATH_SOUND = ['hit-03.wav']
+ENEMY_DEATH_SOUND = ['hit-03.wav']
+EFFECTS_SOUNDS = {'level_start': 'lets_go.ogg',
+				  'health_up': 'pickup-03.wav'}
+
 # Player settings
 PLAYER_HEALTH = 100
 PLAYER_SPEED = 250
@@ -34,7 +43,7 @@ PLAYER_IMG = 'manBrown_hold.png'
 PLAYER_HIT_RECT = pg.Rect(0, 0, 40, 40)
 
 # Fist settings
-FIST_IMG = 'fist_particles.png'
+FIST_IMG = 'slash_04.png'
 FIST_SPEED = 400
 FIST_LIFETIME = 100
 FIST_RATE = 500
@@ -44,9 +53,28 @@ FIST_DAMAGE = 10 # TODO: change damage to 40 and add invulnerability
 
 # Mob settings
 MOB_IMG = 'hitman1_gun.png'
-MOB_SPEEDS = [200, 220, 225, 225, 240, 250]
+MOB_SPEEDS = [190, 200, 210, 210, 220, 220, 230, 240, 1000]
 MOB_HIT_RECT = pg.Rect(0, 0, 45, 45)
 MOB_HEALTH = 100
 MOB_DAMAGE = 25
-MOB_KNOCKBACK = 50
+MOB_KNOCKBACK = 40
 AVOID_RADIUS = 90
+DETECT_RADIUS = 400
+
+# Layers
+BGEFFECTS_LAYER = 1
+WALL_LAYER = 3
+PLAYER_LAYER = 4
+FIST_LAYER = 5
+MOB_LAYER = 4
+ITEM_LAYER = 2
+
+# Items
+ITEM_IMAGES = {'health': 'health_pack.png'}
+HEALTH_PACK_AMOUNT = 25
+BOB_RANGE = 10
+BOB_SPEED = 0.6
+
+# Effects
+BLOOD_PARTICLES = ['B100.png', 'B101.png', 'B102.png']
+SMOKE_DURATION = 5000

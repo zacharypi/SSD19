@@ -1,10 +1,12 @@
 import pygame as pg
-from random import uniform, choice
+from random import uniform, choice, randint
 from settings import *
 from tilemap import collide_hit_rect
+import pytweening as tween
 vec = pg.math.Vector2
 
 def collide_with_walls(sprite, group, dir):
+	# wall collision code
 	if dir == 'x':
 		hits = pg.sprite.spritecollide(sprite, group, False, collide_hit_rect)
 		if hits:
@@ -26,6 +28,7 @@ def collide_with_walls(sprite, group, dir):
 
 class Player(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
+		self._layer = PLAYER_LAYER
 		self.groups = game.all_sprites
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -51,7 +54,7 @@ class Player(pg.sprite.Sprite):
 		if keys[pg.K_UP] or keys[pg.K_w]:
 			self.vel = vec(PLAYER_SPEED, 0).rotate(-self.rot)
 		if keys[pg.K_DOWN] or keys[pg.K_s]:
-			self.vel = vec(-PLAYER_SPEED / 1.75, 0).rotate(-self.rot)
+			self.vel = vec(-PLAYER_SPEED / 1.5, 0).rotate(-self.rot)
 		if keys[pg.K_SPACE]:
 			now = pg.time.get_ticks()
 			if now - self.last_shot > FIST_RATE:
@@ -59,6 +62,7 @@ class Player(pg.sprite.Sprite):
 				dir = vec(1, 0).rotate(-self.rot)
 				Fist(self.game, self.pos, dir)
 				self.vel = vec(KNOCKBACK, 0).rotate(-self.rot)
+				choice(self.game.weapon_sounds['punch']).play()
 
 	def update(self):
 		self.get_keys()
@@ -73,12 +77,18 @@ class Player(pg.sprite.Sprite):
 		collide_with_walls(self, self.game.walls, 'y')
 		self.rect.center = self.hit_rect.center
 
+	def add_health(self, amount):
+		self.health += amount
+		if self.health > PLAYER_HEALTH:
+			self.health = PLAYER_HEALTH
+
 class Mob(pg.sprite.Sprite):
 	def __init__(self, game, x, y):
+		self._layer = MOB_LAYER
 		self.groups = game.all_sprites, game.mobs
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
-		self.image = game.mob_img
+		self.image = game.mob_img.copy()
 		self.rect = self.image.get_rect()
 		self.rect.center = (x, y)
 		self.hit_rect = MOB_HIT_RECT.copy()
@@ -90,6 +100,7 @@ class Mob(pg.sprite.Sprite):
 		self.rot = 0
 		self.health = MOB_HEALTH
 		self.speed = choice(MOB_SPEEDS)
+		self.target = game.player
 
 	def avoid_mobs(self):
 		for mob in self.game.mobs:
@@ -99,22 +110,26 @@ class Mob(pg.sprite.Sprite):
 					self.acc += dist.normalize()
 
 	def update(self): # rotate towards player, need to change implementation in future for game balance
-		self.rot = (self.game.player.pos - self.pos).angle_to(vec(1, 0))
-		self.image = pg.transform.rotate(self.game.mob_img, self.rot)
-		self.rect = self.image.get_rect()
-		self.rect.center = self.pos
-		self.acc = vec(1, 0).rotate(-self.rot)
-		self.avoid_mobs()
-		self.acc.scale_to_length(self.speed)
-		self.acc += self.vel * -1
-		self.vel += self.acc * self.game.dt
-		self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
-		self.hit_rect.centerx = self.pos.x
-		collide_with_walls(self, self.game.walls, 'x')
-		self.hit_rect.centery = self.pos.y
-		collide_with_walls(self, self.game.walls, 'y')
-		self.rect.center = self.hit_rect.center
+		target_dist = self.target.pos - self.pos
+		if target_dist.length_squared() < DETECT_RADIUS**2:
+			self.rot = target_dist.angle_to(vec(1, 0))
+			self.image = pg.transform.rotate(self.game.mob_img, self.rot)
+			self.rect = self.image.get_rect()
+			self.rect.center = self.pos
+			self.acc = vec(1, 0).rotate(-self.rot)
+			self.avoid_mobs()
+			self.acc.scale_to_length(self.speed)
+			self.acc += self.vel * -1
+			self.vel += self.acc * self.game.dt
+			self.pos += self.vel * self.game.dt + 0.5 * self.acc * self.game.dt ** 2
+			self.hit_rect.centerx = self.pos.x
+			collide_with_walls(self, self.game.walls, 'x')
+			self.hit_rect.centery = self.pos.y
+			collide_with_walls(self, self.game.walls, 'y')
+			self.rect.center = self.hit_rect.center
 		if self.health <= 0:
+			BloodParticle(self.game, self.pos)
+			choice(self.game.enemy_death_sounds).play()
 			self.kill()
 
 	def draw_health(self):
@@ -131,6 +146,7 @@ class Mob(pg.sprite.Sprite):
 
 class Fist(pg.sprite.Sprite):
 	def __init__(self, game, pos, dir):
+		self._layer = FIST_LAYER
 		self.groups = game.all_sprites, game.fists
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -166,6 +182,7 @@ class Fist(pg.sprite.Sprite):
 
 class Obstacle(pg.sprite.Sprite):
 	def __init__(self, game, x, y, w, h):
+		self._layer = WALL_LAYER
 		self.groups = game.walls
 		pg.sprite.Sprite.__init__(self, self.groups)
 		self.game = game
@@ -174,3 +191,46 @@ class Obstacle(pg.sprite.Sprite):
 		self.y = y
 		self.rect.x = x
 		self.rect.y = y
+
+class BloodParticle(pg.sprite.Sprite):
+	# visual blood effects
+	def __init__(self, game, pos):
+		self._layer = BGEFFECTS_LAYER
+		self.groups = game.all_sprites
+		pg.sprite.Sprite.__init__(self, self.groups)
+		self.game = game
+		size = randint(75, 125)
+		self.image = pg.transform.scale(choice(game.death_particles), (size, size))
+		self.rect = self.image.get_rect()
+		self.pos = pos
+		self.rect.center = pos
+		self.spawn_time = pg.time.get_ticks()
+
+#	def update(self):
+#		if pg.time.get_ticks() - self.spawn_time > SMOKE_DURATION:
+#			self.kill()
+
+class Item(pg.sprite.Sprite):
+	def __init__(self, game, pos, type):
+		self._layer = ITEM_LAYER
+		self.groups = game.all_sprites, game.items
+		pg.sprite.Sprite.__init__(self, self.groups)
+		self.game = game
+		self.image = pg.transform.scale(game.item_images[type], (48, 48))
+		self.rect = self.image.get_rect()
+		self.type = type
+		self.pos = pos
+		self.rect.center = pos
+		self.tween = tween.easeInOutSine
+		self.step = 0
+		self.dir = 1
+
+	def update(self):
+		# bobbing motion
+		offset = BOB_RANGE * (self.tween(self.step / BOB_RANGE) - 0.5)
+		self.rect.centery = self.pos.y + offset * self.dir
+		self.step += BOB_SPEED
+		if self.step > BOB_RANGE:
+			self.step = 0
+			self.dir *= -1
+
