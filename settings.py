@@ -15,9 +15,9 @@ BROWN = (139, 69, 19)
 
 # game settings
 WIDTH = 1024   # frame size, required to be multiplicable by 32 and 64
-HEIGHT = 768  # frame size, required to be multiplicable by 32 and 64
+HEIGHT = 768   # frame size, required to be multiplicable by 32 and 64
 FPS = 60
-TITLE = "fire" # name of game window
+TITLE = "fire"  # name of game window
 BGCOLOR = LBROWN
 
 TILESIZE = 64
@@ -33,7 +33,7 @@ ENEMY_HIT_SOUND = ['shoot-02.wav']
 DEATH_SOUND = ['hit-03.wav']
 ENEMY_DEATH_SOUND = ['hit-03.wav']
 EFFECTS_SOUNDS = {'level_start': 'lets_go.ogg',
-				  'health_up': 'pickup-03.wav'}
+                  'health_up': 'pickup-03.wav'}
 
 # Player settings
 PLAYER_HEALTH = 100
@@ -49,7 +49,7 @@ FIST_LIFETIME = 100
 FIST_RATE = 500
 KNOCKBACK = 200
 FIST_ACCURACY = 5
-FIST_DAMAGE = 10 # TODO: change damage to 40 and add invulnerability
+FIST_DAMAGE = 10  # TODO: change damage to 40 and add invulnerability
 
 # Mob settings
 MOB_IMG = 'hitman1_gun.png'
