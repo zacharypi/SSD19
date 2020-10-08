@@ -29,11 +29,16 @@ WALL_IMG = 'tile_205.png'
 # Sounds
 BG_MUSIC = 'lets_go_and_replay.ogg'
 WEAPON_SOUNDS_PUNCH = ['hit-02.wav']
+WEAPON_SOUNDS = {'fist': ['hit-02.wav'],
+                 'beam': ['hit-02.wav'],
+                 'pistol': ['hit-02.wav']
+                }
 ENEMY_HIT_SOUND = ['shoot-02.wav']
 DEATH_SOUND = ['hit-03.wav']
 ENEMY_DEATH_SOUND = ['hit-03.wav']
 EFFECTS_SOUNDS = {'level_start': 'lets_go.ogg',
-                  'health_up': 'pickup-03.wav'}
+                  'health_up': 'pickup-03.wav',
+                  'w_pickup': 'pickup-03.wav'}
 
 # Player settings
 PLAYER_HEALTH = 100
@@ -42,8 +47,43 @@ PLAYER_ROT_SPEED = 250
 PLAYER_IMG = 'manBrown_hold.png'
 PLAYER_HIT_RECT = pg.Rect(0, 0, 40, 40)
 
-# Fist settings
+# Weapon settings
 FIST_IMG = 'slash_04.png'
+BULLET_IMG = 'circle_05.png'
+WEAPONS = {}
+WEAPONS['fist'] = {'attack_speed': 400,
+                   'attack_lifetime': 100,
+                   'attack_rate': 500,
+                   'knockback': 200,
+                   'accuracy': 5,
+                   'damage': 10,
+                   'attack_size': 'slash',
+                   'attack_count': 1,
+                   'punchthrough': 1,
+                   'mob_knockback': 1
+                  }
+WEAPONS['beam'] = {'attack_speed': 1000,
+                   'attack_lifetime': 500,
+                   'attack_rate': 20,
+                   'knockback': -200,
+                   'accuracy': 60,
+                   'damage': 0.6,
+                   'attack_size': 'circ',
+                   'attack_count': 5,
+                   'punchthrough': 0,
+                   'mob_knockback': -0.4
+                  }
+WEAPONS['pistol'] = {'attack_speed': 300,
+                     'attack_lifetime': 4000,
+                     'attack_rate': 900,
+                     'knockback': -200,
+                     'accuracy': 6,
+                     'damage': 10,
+                     'attack_size': 'circ',
+                     'attack_count': 1,
+                     'punchthrough': 0,
+                     'mob_knockback': 0.5
+                    }
 FIST_SPEED = 400
 FIST_LIFETIME = 100
 FIST_RATE = 500
@@ -70,7 +110,10 @@ MOB_LAYER = 4
 ITEM_LAYER = 2
 
 # Items
-ITEM_IMAGES = {'health': 'health_pack.png'}
+ITEM_IMAGES = {'health': 'health_pack.png',
+               'beam': 'circle_05.png',
+               'fist': 'circle_05.png'
+              }
 HEALTH_PACK_AMOUNT = 25
 BOB_RANGE = 10
 BOB_SPEED = 0.6
@@ -78,3 +121,4 @@ BOB_SPEED = 0.6
 # Effects
 BLOOD_PARTICLES = ['B100.png', 'B101.png', 'B102.png']
 SMOKE_DURATION = 5000
+DAMAGE_ALPHA = [i for i in range(0, 255, 25)]

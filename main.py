@@ -48,6 +48,7 @@ def draw_player_health(surf, x, y, pct):
 
 class Game:
     def __init__(self):
+        pg.mixer.pre_init(44100, -16, 1, 2048)
         pg.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
         pg.display.set_caption(TITLE)
@@ -96,6 +97,11 @@ class Game:
         self.mob_img = pg.image.load(path.join(img_folder, MOB_IMG)).convert_alpha()
         self.fist_img = pg.image.load(path.join(img_folder, FIST_IMG)).convert_alpha()
         self.fist_img = pg.transform.scale(self.fist_img, (TILESIZE, TILESIZE))
+        self.bullet_images = {}
+        self.bullet_images['slash'] = pg.image.load(path.join(img_folder, FIST_IMG)).convert_alpha()
+        self.bullet_images['slash'] = pg.transform.scale(self.bullet_images['slash'], (TILESIZE, TILESIZE))
+        self.bullet_images['circ'] = pg.image.load(path.join(img_folder, BULLET_IMG)).convert_alpha()
+        self.bullet_images['circ'] = pg.transform.scale(self.bullet_images['circ'], (25, 25))
         self.wall_img = pg.image.load(path.join(img_folder, WALL_IMG)).convert_alpha()
         self.wall_img = pg.transform.scale(self.wall_img, (TILESIZE, TILESIZE))  # Resizes image to correct size
         self.death_particles = []
@@ -110,6 +116,12 @@ class Game:
         for type in EFFECTS_SOUNDS:
             self.effects_sounds[type] = pg.mixer.Sound(path.join(snd_folder, EFFECTS_SOUNDS[type]))
         self.weapon_sounds = {}
+        for weapon in WEAPON_SOUNDS:
+            self.weapon_sounds[weapon] = []
+            for snd in WEAPON_SOUNDS[weapon]:
+                s = pg.mixer.Sound(path.join(snd_folder, snd))
+                s.set_volume(0.7)
+                self.weapon_sounds[weapon].append(s)
         self.weapon_sounds['punch'] = []
         for snd in WEAPON_SOUNDS_PUNCH:
             s = pg.mixer.Sound(path.join(snd_folder, snd))
@@ -149,7 +161,7 @@ class Game:
                 Mob(self, obj_center.x, obj_center.y)
             if tile_object.name == 'wall':
                 Obstacle(self, tile_object.x, tile_object.y, tile_object.width, tile_object.height)
-            if tile_object.name in ['health']:
+            if tile_object.name in ['health', 'beam', 'fist']:
                 Item(self, obj_center, tile_object.name)
         self.camera = Camera(self.map.width, self.map.height)
         self.draw_debug = False
@@ -183,6 +195,14 @@ class Game:
                 hit.kill()
                 self.effects_sounds['health_up'].play()
                 self.player.add_health(HEALTH_PACK_AMOUNT)
+            if hit.type == 'beam':
+                hit.kill()
+                self.effects_sounds['w_pickup'].play()
+                self.player.weapon = 'beam'
+            if hit.type == 'fist':
+                hit.kill()
+                self.effects_sounds['w_pickup'].play()
+                self.player.weapon = 'fist'
         # mobs hit player // TODO: replace mobs with bullets here
         hits = pg.sprite.spritecollide(self.player, self.mobs, False, collide_hit_rect)
         for hit in hits:
@@ -193,12 +213,17 @@ class Game:
                 choice(self.enemy_death_sounds).play()
                 self.playing = False
         if hits:
+            self.player.hit()
             self.player.pos += vec(MOB_KNOCKBACK, 0).rotate(-hits[0].rot)
         # punches hit enemies
-        hits = pg.sprite.groupcollide(self.mobs, self.fists, False, False)
+        if WEAPONS[self.player.weapon]['punchthrough'] == 0:
+            hits = pg.sprite.groupcollide(self.mobs, self.fists, False, True)
+        else:
+            hits = pg.sprite.groupcollide(self.mobs, self.fists, False, False)
         for hit in hits:
-            hit.health -= FIST_DAMAGE
-            hit.vel = vec(100, 100)  # I MADE THEM GO BACK
+            hit.health -= WEAPONS[self.player.weapon]['damage'] * len(hits[hit])
+            kb = WEAPONS[self.player.weapon]['mob_knockback'] * 100
+            hit.vel = vec(kb, kb)  # I MADE THEM GO BACK
 
             # this is utterly fucked
             # a grave transgression has been made in the
